@@ -4,6 +4,7 @@
 
 namespace termform{
     
+    //consts for Ansi Escape
     const std::string kAnsiEscapeBegin = "\u001b[";
     const char kAnsiEscapeEndColor = 'm';
     const char kAnsiEscapeEndClearLine = 'K';
@@ -22,6 +23,7 @@ namespace termform{
     const int kAnsiCustomColorBegin = 38;
     const std::string kAnsiCustomColorMiddle = ";5;";
 
+    //Ansi codes for 8 bit color and special modifiers
     enum Style{
         kBlack = 30,
         kRed = 31,
@@ -33,7 +35,6 @@ namespace termform{
         kWhite = 37,
 
         kBold = 1,
-        
         kUnderline = 4,
         kInvert = 7,
         kBlink = 5,
@@ -41,11 +42,10 @@ namespace termform{
 
         kBright = kBold,
 
-        kCustom,
-
         kReset = 0
     };
 
+    //Foreground/Background modifiers
     enum ForegroundBackground{
         kForeground = 0,
         kBackground = 10,
@@ -54,6 +54,7 @@ namespace termform{
         kBG = kBackground
     };
 
+    //Methods to use a custom ansi color code for 256 color support
     std::string customColor(ForegroundBackground F, int code){
         return std::to_string(F + kAnsiCustomColorBegin) 
         + kAnsiCustomColorMiddle 
@@ -64,30 +65,7 @@ namespace termform{
         return customColor(kForeground, code);
     }
 
-
-    template<typename T>
-    void cout(T arg){
-        std::cout << arg;
-        std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
-        std::cout << std::endl;
-    }
-
-    template<typename T, typename ... Args>
-    void cout(T arg, bool endline){
-        std::cout << arg;
-        std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
-        if(endline){
-            std::cout << std::endl;
-        }
-    }
-
-    template<typename T, typename ... Args>
-    void cout(T style, const Args&... rest) {
-        std::cout << kAnsiEscapeBegin << style << kAnsiEscapeEndColor;
-        cout(rest...);
-    }
-    
-
+    //Template methods to print formatted text to user provided output
     template<typename OutputStream, typename T>
     void out(OutputStream &out_stream, T arg){
         out_stream << arg;
@@ -109,13 +87,33 @@ namespace termform{
         out_stream << kAnsiEscapeBegin << style << kAnsiEscapeEndColor;
         out(out_stream, rest...);
     }
+
+
+    //Template methods to print formatted text to cout
+    template<typename T>
+    void cout(T arg){
+        out(std::cout, arg);
+    }
+
+    template<typename T, typename ... Args>
+    void cout(T arg, bool endline){
+        out(std::cout, arg, endline);
+    }
+
+    template<typename T, typename ... Args>
+    void cout(T style, const Args&... rest) {
+        out(std::cout, style, rest...);
+    }
     
+    
+    //Ansi Codes to clear line/screen
     enum ClearAmount{
         kAll = 2,
         kCursorToStart = 1,
         kCursorToEnd = 0
     };
 
+    //Methods to clear line
     void clearLine(int amount){
         std::cout << kAnsiEscapeBegin << amount << kAnsiEscapeEndClearLine;
     }
@@ -129,6 +127,7 @@ namespace termform{
         clearLine(kAll);
     }
 
+    //Methods to clear screen
     void clearScreen(int amount){
         std::cout << kAnsiEscapeBegin << amount << kAnsiEscapeEndClearScreen;
     }
@@ -142,7 +141,7 @@ namespace termform{
         clearScreen(kAll);
     }
 
-
+    //Direction to move cursor
     enum Direction{
         kUp,
         kDown,
@@ -150,6 +149,7 @@ namespace termform{
         kRight
     };
 
+    //Method to move cursor
     void moveCursor(Direction d, int spaces){
         switch(d){
             case kUp:
@@ -167,6 +167,7 @@ namespace termform{
         }
     }
 
+    //Cursor memory functions
     void saveCursorPosition(){
         std::cout << kAnsiEscapeBegin << kAnsiEscapeEndSaveCursorPosition;
     }
