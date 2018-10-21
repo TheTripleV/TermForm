@@ -23,6 +23,9 @@ namespace termform{
     const int kAnsiCustomColorBegin = 38;
     const std::string kAnsiCustomColorMiddle = ";5;";
 
+    //Code to Beep
+    const char kBeepCode = '\a';
+
     //Ansi codes for 8 bit color and special modifiers
     enum Style{
         kBlack = 30,
@@ -55,14 +58,14 @@ namespace termform{
     };
 
     //Methods to use a custom ansi color code for 256 color support
-    std::string customColor(ForegroundBackground F, int code){
+    std::string CustomColor(ForegroundBackground F, int code){
         return std::to_string(F + kAnsiCustomColorBegin) 
         + kAnsiCustomColorMiddle 
         + std::to_string(code);
     }
 
-    std::string customColor(int code){
-        return customColor(kForeground, code);
+    std::string CustomColor(int code){
+        return CustomColor(kForeground, code);
     }
 
     //Template methods to print formatted text to user provided output
@@ -114,31 +117,31 @@ namespace termform{
     };
 
     //Methods to clear line
-    void clearLine(int amount){
+    void ClearLine(int amount){
         std::cout << kAnsiEscapeBegin << amount << kAnsiEscapeEndClearLine;
     }
 
-    void clearLine(ClearAmount amount){
+    void ClearLine(ClearAmount amount){
         int temp = amount;
-        clearLine(temp);
+        ClearLine(temp);
     }
 
-    void clearLine(){
-        clearLine(kAll);
+    void ClearLine(){
+        ClearLine(kAll);
     }
 
     //Methods to clear screen
-    void clearScreen(int amount){
+    void ClearScreen(int amount){
         std::cout << kAnsiEscapeBegin << amount << kAnsiEscapeEndClearScreen;
     }
 
-    void clearScreen(ClearAmount amount){
+    void ClearScreen(ClearAmount amount){
         int temp = amount;
-        clearScreen(temp);
+        ClearScreen(temp);
     }
 
-    void clearScreen(){
-        clearScreen(kAll);
+    void ClearScreen(){
+        ClearScreen(kAll);
     }
 
     //Direction to move cursor
@@ -150,7 +153,7 @@ namespace termform{
     };
 
     //Method to move cursor
-    void moveCursor(Direction d, int spaces){
+    void MoveCursor(Direction d, int spaces){
         switch(d){
             case kUp:
                 std::cout << kAnsiEscapeBegin << spaces << kAnsiEscapeEndCursorUp;
@@ -168,12 +171,32 @@ namespace termform{
     }
 
     //Cursor memory functions
-    void saveCursorPosition(){
+    void SaveCursorPosition(){
         std::cout << kAnsiEscapeBegin << kAnsiEscapeEndSaveCursorPosition;
     }
 
-    void restoreCursorPosition(){
+    void RestoreCursorPosition(){
         std::cout << kAnsiEscapeBegin << kAnsiEscapeEndRestoreCursorPosition;
+    }
+
+    //Beep methods
+    void Beep(){
+        std::cout << kBeepCode;
+    }
+    void BeepBeep(){
+        Beep();
+    }
+    void Honk(){
+        Beep();
+    }
+    void HonkHonk(){
+        Beep();
+    }
+    void Toot(){
+        Beep();
+    }
+    void TootToot(){
+        Beep();
     }
 
 }
