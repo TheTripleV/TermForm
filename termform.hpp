@@ -19,6 +19,9 @@ namespace termform{
     const char kAnsiEscapeEndSaveCursorPosition = 's';
     const char kAnsiEscapeEndRestoreCursorPosition = 'u';
 
+    const int kAnsiCustomColorBegin = 38;
+    const std::string kAnsiCustomColorMiddle = ";5;";
+
     enum Style{
         kBlack = 30,
         kRed = 31,
@@ -36,17 +39,31 @@ namespace termform{
         kBlink = 5,
         kConceal = 8,
 
-        kForeground = 0,
-        kBackground = 10,
-
-        kFG = kForeground,
-        kBG = kBackground,
         kBright = kBold,
 
         kCustom,
 
         kReset = 0
     };
+
+    enum ForegroundBackground{
+        kForeground = 0,
+        kBackground = 10,
+
+        kFG = kForeground,
+        kBG = kBackground
+    };
+
+    std::string customColor(ForegroundBackground F, int code){
+        return std::to_string(F + kAnsiCustomColorBegin) 
+        + kAnsiCustomColorMiddle 
+        + std::to_string(code);
+    }
+
+    std::string customColor(int code){
+        return customColor(kForeground, code);
+    }
+
 
     template<typename T>
     void cout(T arg){
