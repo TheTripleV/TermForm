@@ -19,7 +19,6 @@ namespace termform{
     const char kAnsiEscapeEndSaveCursorPosition = 's';
     const char kAnsiEscapeEndRestoreCursorPosition = 'u';
 
-
     enum Style{
         kBlack = 30,
         kRed = 31,
@@ -44,6 +43,8 @@ namespace termform{
         kBG = kBackground,
         kBright = kBold,
 
+        kCustom,
+
         kReset = 0
     };
 
@@ -51,11 +52,13 @@ namespace termform{
     void cout(T arg){
         std::cout << arg;
         std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+        std::cout << std::endl;
     }
 
     template<typename T, typename ... Args>
     void cout(T arg, bool endline){
-        cout(arg);
+        std::cout << arg;
+        std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
         if(endline){
             std::cout << std::endl;
         }
@@ -68,6 +71,27 @@ namespace termform{
     }
     
 
+    template<typename OutputStream, typename T>
+    void out(OutputStream &out_stream, T arg){
+        out_stream << arg;
+        out_stream << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+        out_stream << std::endl;
+    }
+
+    template<typename OutputStream, typename T, typename ... Args>
+    void out(OutputStream &out_stream, T arg, bool endline){
+        out_stream << arg;
+        out_stream << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+        if(endline){
+            out_stream << std::endl;
+        }
+    }
+
+    template<typename OutputStream, typename T, typename ... Args>
+    void out(OutputStream &out_stream, T style, const Args&... rest) {
+        out_stream << kAnsiEscapeBegin << style << kAnsiEscapeEndColor;
+        out(out_stream, rest...);
+    }
     
     enum ClearAmount{
         kAll = 2,
