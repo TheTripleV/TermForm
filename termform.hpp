@@ -1,6 +1,8 @@
-#include <iostream>
 #ifndef TermFormH
 #define TermFormH
+#include <iostream>
+#include <string>
+#include <sstream>
 
 namespace termform{
     
@@ -86,6 +88,17 @@ namespace termform{
     }
 
     template<typename OutputStream, typename T, typename ... Args>
+    void out(OutputStream &out_stream, T arg, bool endline, bool reset){
+        out_stream << arg;
+        if(reset){
+            out_stream << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+        }
+        if(endline){
+            out_stream << std::endl;
+        }
+    }
+
+    template<typename OutputStream, typename T, typename ... Args>
     void out(OutputStream &out_stream, T style, const Args&... rest) {
         out_stream << kAnsiEscapeBegin << style << kAnsiEscapeEndColor;
         out(out_stream, rest...);
@@ -108,6 +121,9 @@ namespace termform{
         out(std::cout, style, rest...);
     }
     
+    void cout(){
+        out(std::cout, "");
+    }
     
     //Ansi Codes to clear line/screen
     enum ClearAmount{
@@ -198,6 +214,193 @@ namespace termform{
     void TootToot(){
         Beep();
     }
+
+
+    //Progress Bar
+    template <typename Filled = char, typename Unfilled = char, typename BookendBegin = char, typename BookendEnd = char>
+    class ProgressBar{
+        private:
+            BookendBegin bookend_begin_;
+            BookendEnd bookend_end_;
+            Filled filled_;
+            Unfilled unfilled_;
+            int length_;
+            int num_filled_;
+
+            std::ostringstream filled_style_;
+            std::ostringstream unfilled_style_;
+            std::ostringstream bookend_begin_style_;
+            std::ostringstream bookend_end_style_;
+
+            bool bookend_begin_set_ = false;
+            bool bookedn_end_set_ = false;
+            bool filled_set_ = false;
+            bool unfilled_set_ = false;
+            bool length_set_ = false;
+
+            bool something_changed_ = false;
+
+        public:
+            ProgressBar(){}
+
+
+            ProgressBar(Filled filled){
+                SetFilled(filled);
+            }            
+
+            ProgressBar(int length){
+                SetLength(length);
+            }
+
+            ProgressBar(Filled filled, int length){
+                SetFilled(filled);
+                SetLength(length);
+            }
+
+            ProgressBar(Filled filled, Unfilled unfilled){
+                SetFilled(filled);
+                SetUnfilled(unfilled);
+            }
+
+            ProgressBar(Filled filled, Unfilled unfilled, int length){
+                SetFilled(filled);
+                SetUnfilled(unfilled);
+                SetLength(length);
+            }
+
+            ProgressBar(Filled filled, Unfilled unfilled, int length, BookendBegin bookend_begin, BookendEnd bookend_end){
+                SetFilled(filled);
+                SetUnfilled(unfilled);
+                SetLength(length);
+                SetBookendBegin(bookend_begin);
+                SetBookendEnd(bookend_end);
+            }
+
+            void SetFilled(Filled filled){
+                filled_ = filled;
+                filled_set_ = true;
+                something_changed_ = true;
+            }
+
+            void SetUnfilled(Unfilled unfilled){
+                unfilled_ = unfilled;
+                unfilled_set_ = true;
+                something_changed_ = true;
+            }
+
+            void SetLength(int length){
+                length_ = length;
+                length_set_ = true;
+                something_changed_ = true;
+            }
+
+            void SetBookendBegin(BookendBegin bookend){
+                bookend_begin_ = bookend;
+                bookend_begin_set_ = true;
+                something_changed_ = true;
+            }
+
+            void SetBookendEnd(BookendEnd bookend){
+                bookend_end_ = bookend;
+                bookedn_end_set_ = true;
+                something_changed_ = true;
+            }
+
+            template<typename ... Args>
+            void SetBookendBeginStyle(const Args&... rest) {
+                bookend_begin_style_.clear();
+                out(bookend_begin_style_, rest..., "", false, false);
+                something_changed_ = true;
+            }
+
+            template<typename ... Args>
+            void SetBookendEndStyle(const Args&... rest) {
+                bookend_end_style_.clear();
+                out(bookend_end_style_, rest..., "", false, false);
+                something_changed_ = true;
+            }
+
+            template<typename ... Args>
+            void SetBookendsStyle(const Args&... rest) {
+                bookend_begin_style_.clear();
+                bookend_end_style_.clear();
+                out(bookend_begin_style_, rest..., "", false, false);
+                out(bookend_end_style_, rest..., "", false, false);
+                something_changed_ = true;
+            }
+
+            template<typename ... Args>
+            void SetFilledStyle(const Args&... rest) {
+                filled_style_.clear();
+                out(filled_style_, rest..., "", false, false);
+                something_changed_ = true;
+            }
+
+            template<typename ... Args>
+            void SetUnfilledStyle(const Args&... rest) {
+                unfilled_style_.clear();
+                out(unfilled_style_, rest..., "", false, false);
+                something_changed_ = true;
+            }
+
+            template<typename Numerator, typename Denominator>
+            void update(Numerator numerator, Denominator denominator){
+                SetDefaults();
+
+                int new_num_filled = length_ * (double)(numerator / (double)denominator);
+                if(num_filled_ != new_num_filled || HasSomethingChanged()){
+
+                    ClearLine();
+                    MoveCursor(kLeft, 50);
+
+                    num_filled_ = new_num_filled;
+
+                    std::cout << bookend_begin_style_.str() << bookend_begin_;
+
+                    std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+
+                    std::cout << filled_style_.str();
+                    for(int i = 0; i < num_filled_; i++){
+                        std::cout << filled_;
+                    }
+
+                    std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+
+                    std::cout << unfilled_style_.str();
+                    for(int i = 0; i < length_ - num_filled_; i++){
+                        std::cout << unfilled_;
+                    }
+
+                    std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+
+                    std::cout << bookend_end_style_.str() << bookend_end_;
+
+                    std::cout << kAnsiEscapeBegin << kReset << kAnsiEscapeEndColor;
+
+                    //MoveCursor(kRight, 20);
+
+                    std::cout.flush();
+                }
+            }
+
+
+            bool HasSomethingChanged(){
+                if(something_changed_){
+                    something_changed_ = false;
+                    return true;
+                }
+                return false;
+            }
+
+            void SetDefaults(){
+                if(!bookend_begin_set_) bookend_begin_ = '[';
+                if(!bookedn_end_set_) bookend_end_ = ']';
+                if(!filled_set_) filled_ = '#';
+                if(!unfilled_set_) unfilled_ = ' ';
+            }
+
+    };
+
 
 }
 
