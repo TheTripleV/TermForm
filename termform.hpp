@@ -309,14 +309,14 @@ namespace termform{
             template<typename ... Args>
             void SetBookendBeginStyle(const Args&... rest) {
                 bookend_begin_style_.clear();
-                out(bookend_begin_style_, rest..., "", false, false);
+                out(bookend_begin_style_, "", rest..., false, false);
                 something_changed_ = true;
             }
 
             template<typename ... Args>
             void SetBookendEndStyle(const Args&... rest) {
                 bookend_end_style_.clear();
-                out(bookend_end_style_, rest..., "", false, false);
+                out(bookend_end_style_, "", rest..., false, false);
                 something_changed_ = true;
             }
 
@@ -324,22 +324,22 @@ namespace termform{
             void SetBookendsStyle(const Args&... rest) {
                 bookend_begin_style_.clear();
                 bookend_end_style_.clear();
-                out(bookend_begin_style_, rest..., "", false, false);
-                out(bookend_end_style_, rest..., "", false, false);
+                out(bookend_begin_style_, "", rest..., false, false);
+                out(bookend_end_style_, "", rest..., false, false);
                 something_changed_ = true;
             }
 
             template<typename ... Args>
             void SetFilledStyle(const Args&... rest) {
                 filled_style_.clear();
-                out(filled_style_, rest..., "", false, false);
+                out(filled_style_, "", rest..., false, false);
                 something_changed_ = true;
             }
 
             template<typename ... Args>
             void SetUnfilledStyle(const Args&... rest) {
                 unfilled_style_.clear();
-                out(unfilled_style_, rest..., "", false, false);
+                out(unfilled_style_, "", rest..., false, false);
                 something_changed_ = true;
             }
 
