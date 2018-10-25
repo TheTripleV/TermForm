@@ -98,10 +98,10 @@ namespace termform{
         }
     }
 
-    template<typename OutputStream, typename T, typename ... Args>
-    void out(OutputStream &out_stream, T style, const Args&... rest) {
+    template<typename OutputStream, typename Y, typename T, typename ... Args>
+    void out(OutputStream &out_stream, Y arg, T style, const Args&... rest) {
         out_stream << kAnsiEscapeBegin << style << kAnsiEscapeEndColor;
-        out(out_stream, rest...);
+        out(out_stream, arg, rest...);
     }
 
 
@@ -116,9 +116,9 @@ namespace termform{
         out(std::cout, arg, endline);
     }
 
-    template<typename T, typename ... Args>
-    void cout(T style, const Args&... rest) {
-        out(std::cout, style, rest...);
+    template<typename ... Args>
+    void cout(const Args&... rest) {
+        out(std::cout, rest...);
     }
     
     void cout(){
